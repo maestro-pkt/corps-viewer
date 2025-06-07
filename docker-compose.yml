@@ -1,0 +1,44 @@
+########################### NETWORKS
+# networks:
+#   t3_proxy:
+#     external: true
+
+services:
+  app:
+    build:
+      context: .
+      #target: 'dev'
+      target: 'prod'
+
+    #image: corps-viewer:latest
+    container_name: corps-viewer
+    ports:
+      - '3001:3000'
+      - '9229:9229'
+    volumes:
+      - ./data/:/db:rw
+      #- /mnt/e:/media:ro
+      - '/mnt/e/:/media:ro'
+
+    environment: #internal port
+      - DOMAINNAME_1=thegoobs.com
+
+      - SQLITE3_DATABASE=/db/dci-2.db
+      - DATA_PATH=/db
+      - MEDIA_PATH=/media
+      #- PATH_REWRITE_FROM='Drum'
+      #- PATH_REWRITE_TO=/media
+    labels:
+      - 'traefik.enable=true'
+      # HTTP Routers
+      - 'traefik.http.routers.dcorps-rtr.entrypoints=websecure'
+      - 'traefik.http.routers.dcorps-rtr.rule=Host(`corps.thegoobs.com`)'
+      # Middlewares
+      - 'traefik.http.routers.dcorps-rtr.middlewares=chain-authelia@file'
+      - 'traefik.http.routers.dcorps-rtr.tls=true'
+      - 'traefik.http.routers.dcorps-rtr.tls.certresolver=dns-cloudflare'
+      # HTTP Services
+      - 'traefik.http.routers.dcorps-rtr.service=dcorps-svc'
+      - 'traefik.http.services.dcorps-svc.loadbalancer.server.port=3000'
+    # networks:
+    #   - t3_proxy

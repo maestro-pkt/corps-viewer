@@ -5,12 +5,10 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
+  ssr: false,
+
   css: ['~/assets/css/main.css'],
-  modules: [
-    '@primevue/nuxt-module',
-    '@pinia/nuxt',
-    'nuxt-viewport',
-  ],
+  modules: ['@primevue/nuxt-module', '@pinia/nuxt', 'nuxt-viewport'],
   primevue: {
     importTheme: { from: '@/theme.js' },
     // options: {
@@ -25,6 +23,16 @@ export default defineNuxtConfig({
       watch: {
         ignored: ['**/data/**'],
       },
+    },
+  },
+  app: {
+    head: {
+      title: 'Corps Player',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { hid: 'description', name: 'description', content: '' },
+      ],
     },
   },
 });

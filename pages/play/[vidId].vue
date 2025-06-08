@@ -44,6 +44,14 @@ const videoOptions = {
 	inactivityTimeout: 0, // 0 indicates that the user will never be considered inactive.
 	enableSmoothSeeking: true,
 	sources: [],
+	playsinline: true,
+	enableDocumentPictureInPicture: true,
+	controlBar: {
+		skipButtons: {
+			forward: 10,
+			back: 10,
+		},
+	},
 };
 
 const vidType = ref();

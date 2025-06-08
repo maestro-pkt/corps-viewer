@@ -43,6 +43,7 @@ const videoOptions = {
 	inactivityTimeout: 0, // 0 indicates that the user will never be considered inactive.
 	enableSmoothSeeking: true,
 	sources: [],
+	playsinline: true,
 };
 </script>
 
@@ -56,7 +57,8 @@ const videoOptions = {
         <!-- <p>This is the content for column 2.</p> -->
         <p> VidID:{{ vidId }}</p>
         <p>Type: {{ vidType }}</p>
-        <video-player :options="videoOptions" :vidId="vidId" :vidType="vidType" />
+       <video-player :options="videoOptions" :vidId="vidId" :vidType="vidType" />
+   
       </div>
 
       <!-- Column 1 -->

@@ -7,8 +7,8 @@ services:
   app:
     build:
       context: .
-      #target: 'dev'
-      target: 'prod'
+      target: 'dev'
+      #target: 'prod'
 
     #image: corps-viewer:latest
     container_name: corps-viewer

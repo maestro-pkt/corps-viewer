@@ -37,8 +37,7 @@ onMounted(async () => {
 	);
 	// console.log(videoList.value);
 
-	if (		videoList.value?.length) {
-
+	if (videoList.value?.length) {
 		for (const oneVid of videoList.value) {
 			//oneVid.fileinfo = JSON.parse(oneVid.fileinfo);
 			const parts = oneVid.fileinfo.split("|");
@@ -65,11 +64,17 @@ function formatBitrate(value) {
 		return "";
 	}
 }
+
+const viewport = useViewport();
+
+watch(viewport.breakpoint, (newBreakpoint, oldBreakpoint) => {
+	console.log("Breakpoint updated:", oldBreakpoint, "->", newBreakpoint);
+});
 </script>
 
 <template>
 	<!-- {{ $route.params }} -->
-
+	
 	<h1 class="m-2 ml-6">
 		<span class="text-4xl font-bold">
 			 <NuxtLink :to="'/corps/' + corpsId">{{ name }}</NuxtLink>
@@ -78,6 +83,28 @@ function formatBitrate(value) {
 			         <NuxtLink :to="'/years/' + year"> {{ year }} </NuxtLink>			
 </span>
 	</h1>
+
+	<div>
+    <div v-if="viewport.isLessThan('tablet')">Should render only on mobile
+
+<div v-for="(vid, index) in videoList" :key="index">
+		<div class="p-2 m-2 border rounded-lg">
+			<h2 class="text-xl font-bold">{{ vid.title }}</h2>
+			<p>Duration: {{ vid.duration }}</p>
+			<p>Filename: {{ vid.path }}</p>
+			<p>Resolution: {{ vid.resolution }}</p>
+			<p>Bitrate: {{ formatBitrate(vid.bitrate) }}</p>
+			<p>Codec: {{ vid.codec }}</p>
+			<p>Sample Rate: {{ formatSampleRate(vid.sampleRate) }}</p>
+			<Button @click="playShow({ data: vid })" label="Play Show"></Button>
+		</div>
+		<hr />
+</div>
+
+
+		</div>
+    <div v-else>Current breakpoint: {{ viewport.breakpoint }}
+
 	<!-- {{ videoList }} -->
 	<DataTable v-model:selection="selectedVideo" :value="videoList" @rowSelect="playShow" selectionMode="single"
 		sortMode="single" sortField="duration" scrollable tableStyle="min-width: 50rem">
@@ -99,5 +126,6 @@ function formatBitrate(value) {
 			</template>
 		</Column>
 	</DataTable>
-
+</div>
+  </div>
 </template>

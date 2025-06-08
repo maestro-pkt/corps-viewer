@@ -57,7 +57,7 @@ onMounted(async () => {
 });
 
 async function selectCorps(item) {
-	console.log(item.data);
+	console.log(item);
 	year.value = route.params.year;
 	name.value = item.data.name;
 	corpsId.value = item.data.corpsId;
@@ -97,61 +97,109 @@ const filterOptions = ref([
 	{ value: "Sound Sport" },
 	{ value: "International" },
 ]);
+
+const viewport = useViewport();
+
+watch(viewport.breakpoint, (newBreakpoint, oldBreakpoint) => {
+	console.log("Breakpoint updated:", oldBreakpoint, "->", newBreakpoint);
+});
+
+const corpsByPosition = computed(() => {
+	return corps.value.sort((a, b) => {
+		if (a.position < b.position) return -1;
+		if (a.position > b.position) return 1;
+		return 0;
+	});
+});
+
+async function selectCorpsMobile(item) {
+	console.log(item);
+	year.value = route.params.year;
+	name.value = item.name;
+	corpsId.value = item.corpsId;
+	position.value = item.position;
+	score.value = item.score;
+	title.value = item.title;
+	rep.value = item.rep;
+
+	crumbStore.add({
+		route: route,
+		name: `Scores from ${year.value}`,
+	});
+	console.log("Navigate to", `/y-${route.params.year}/c-${item.corpsId}`);
+	await navigateTo(`/y-${route.params.year}/c-${item.corpsId}`);
+}
 </script>
 
 <template>
+
+
   <!-- {{ $route.params.year }} -->
   <!-- {{ selectedCorps }} -->
-  <div class="ml-2 mr-2 mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="mx-auto bg-white rounded-lg shadow-md overflow-hidden">
     <div class="p-6">
       <h2 class="text-xl font-bold mb-2">{{ route.params.year }}</h2>
 
-      <DataTable
-        :value="corps"
-        v-model:selection="selectedCorps"
-        selectionMode="single"
-        sortMode="multiple"
-        :multiSortMeta="multiSortMeta"
-        scrollable
-        stripedRows
-        tableStyle="min-width: 50rem; max-height: 50%"
-        @rowSelect="selectCorps"
-        v-model:filters="filters"
-        filterDisplay="row"
-      >
-        <template #header>
-          <div class="flex justify-beginning">
-            <Fieldset legend="Filter">
-            
-            <SelectButton
-              v-model="filterValue"
-              :options="filterOptions"
-              optionLabel="value"
-              dataKey="value"
-              aria-labelledby="custom"
-              @change="divisionChange"
-            >
-              <template #option="slotProps">
-                {{ slotProps.option.value }}
-              </template>
-            </SelectButton>
-            </Fieldset>
+      <div v-if="viewport.isLessThan('tablet')">
+        Should render only on mobile
+
+        <div>Filter buttons: Juniors / Seniors/etc</div>
+
+        <div v-for="(oneCorps, idx) in corpsByPosition" :key="idx" class="mb-2">
+          <div class="p-2 m-2 border rounded-lg">
+          <h2 class="text-xl font-bold">{{ oneCorps.name }}</h2>
+          
+          <p>Position: {{ oneCorps.position }}</p>
+          <p>Score: {{ oneCorps.score }}</p>
+          <p>Title: {{ oneCorps.title }}</p>
+          <p>Rep: {{ oneCorps.rep.split('~!~').join(' -- ') }}</p>
+          <p>Division: {{ oneCorps.division }}</p>
+
+          <p>#Vids: {{ oneCorps.videoCnt }}</p>
+          <p>Corps ID: {{ oneCorps.corpsId }}</p>
+          
+
+          <Button @click="selectCorpsMobile(oneCorps)" class="w-full" label="Select Corps">
+            {{ oneCorps.name }}
+          </Button>
           </div>
-        </template>
 
-        <Column field="name" header="Name" sortable></Column>
-        <Column field="position" header="Position" sortable></Column>
-        <Column field="score" header="Score" sortable></Column>
-        <Column field="title" header="Title" sortable></Column>
-        <Column field="videoCnt" header="#Vids" sortable></Column>
-        <Column field="rep" header="Rep">
-          <template #body="slotProps">
-            {{ slotProps.data.rep.split('~!~').join(' -- ') }}
-          </template>
-        </Column>
-        <Column field="division" header="Division" sortable></Column>
-      </DataTable>
+        </div>
+      </div>
+        <div v-else>Current breakpoint: {{ viewport.breakpoint }}
 
+          <DataTable :value="corps" v-model:selection="selectedCorps" selectionMode="single" sortMode="multiple"
+            :multiSortMeta="multiSortMeta" scrollable stripedRows tableStyle="min-width: 50rem; max-height: 50%"
+            @rowSelect="selectCorps" v-model:filters="filters" filterDisplay="row">
+            <template #header>
+              <div class="flex justify-beginning">
+                <Fieldset legend="Filter">
+
+                  <SelectButton v-model="filterValue" :options="filterOptions" optionLabel="value" dataKey="value"
+                    aria-labelledby="custom" @change="divisionChange">
+                    <template #option="slotProps">
+                      {{ slotProps.option.value }}
+                    </template>
+                  </SelectButton>
+                </Fieldset>
+              </div>
+            </template>
+
+            <Column field="name" header="Name" sortable></Column>
+            <Column field="position" header="Position" sortable></Column>
+            <Column field="score" header="Score" sortable></Column>
+            <Column field="title" header="Title" sortable></Column>
+            <Column field="videoCnt" header="#Vids" sortable></Column>
+            <Column field="rep" header="Rep">
+              <template #body="slotProps">
+                {{ slotProps.data.rep.split('~!~').join(' -- ') }}
+              </template>
+            </Column>
+            <Column field="division" header="Division" sortable></Column>
+          </DataTable>
+
+        </div>
+ 
     </div>
-  </div>
+    </div>
 </template>

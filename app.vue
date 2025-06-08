@@ -87,7 +87,7 @@ const items = ref([
 </script>
 
 <template>
-   <UApp>
+  
   <Toolbar>
     <template #start>
       <Menubar :model="items">
@@ -150,5 +150,4 @@ const items = ref([
   </Toolbar>
   <!-- style="height: 100%" -->
   <NuxtPage />
-</UApp>
 </template>

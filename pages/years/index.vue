@@ -27,19 +27,17 @@ async function switchToYear(y) {
 </script>
 
 <template>
-  <div class="ml-2 mr-2 mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="mx-auto bg-white rounded-lg shadow-md overflow-hidden">
     <div class="p-6">
       <h2 class="text-xl font-bold mb-2">Year Selection</h2>
       <div class="grid grid-rows-4 grid-flow-col gap-1">
-              <div v-for="(oneYear, idx) in yearList" :id="idx">
-        <div>
-          <Button @click="switchToYear(oneYear)" class="mb-2">{{
-            oneYear
-          }}</Button>
+        <div v-for="(oneYear, idx) in yearList" :id="idx">
+          <div>
+            <Button @click="switchToYear(oneYear)" class="mb-2">{{
+              oneYear
+            }}</Button>           
+          </div>
         </div>
-
-        
-      </div>
       </div>
     </div>
   </div>

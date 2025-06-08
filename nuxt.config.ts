@@ -6,7 +6,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
-  modules: ['@primevue/nuxt-module', '@pinia/nuxt', '@nuxt/ui'],
+  modules: [
+    '@primevue/nuxt-module',
+    '@pinia/nuxt',
+    'nuxt-viewport',
+  ],
   primevue: {
     importTheme: { from: '@/theme.js' },
     // options: {

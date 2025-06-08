@@ -4,6 +4,8 @@ export const usePrefsStore = defineStore("prefs", {
 		volume: "30",
 		mute: false,
 		autoplay: true,
+		skip10: false,
+		skip30: false,
 	}),
 
 	actions: {
@@ -15,6 +17,14 @@ export const usePrefsStore = defineStore("prefs", {
 		},
 		toggleMute() {
 			this.mute = !this.mute;
+		},
+		skip10Sec() {
+			this.skip10 = true;
+			this.skip30 = false; // Ensure only one skip option is active
+		},
+		skip30Sec() {
+			this.skip30 = true;
+			this.skip10 = false; // Ensure only one skip option is active
 		},
 	},
 });

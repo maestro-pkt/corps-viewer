@@ -7,12 +7,22 @@ import {
 	FaVolumeMute,
 	FaVolumeUp,
 	FaVolumeDown,
+	MdForward10Twotone,
+	MdForward30,
 } from "oh-vue-icons/icons";
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { ref } from "vue";
 import { usePrefsStore } from "@/stores/prefs.js";
 
-addIcons(BiZoomIn, BiZoomOut, FaVolumeMute, FaVolumeUp, FaVolumeDown);
+addIcons(
+	BiZoomIn,
+	BiZoomOut,
+	FaVolumeMute,
+	FaVolumeUp,
+	FaVolumeDown,
+	MdForward10Twotone,
+	MdForward30,
+);
 // import mkvExtract from "~/services/mkvExtract";
 
 import { useCorpsStore } from "@/stores/corps.js";
@@ -49,7 +59,7 @@ const videoOptions = {
 	controlBar: {
 		skipButtons: {
 			forward: 10,
-			back: 10,
+			backward: 10,
 		},
 	},
 };
@@ -224,6 +234,16 @@ function volumeDown() {
 	console.log("vol down");
 	prefsStore.volDown();
 }
+function skip10() {
+	console.log("skip 10");
+	prefsStore.skip10Sec();
+	// playerDiv.value.currentTime(playerDiv.value.currentTime() + 10);
+}
+function skip30() {
+	console.log("skip 30");
+	prefsStore.skip30Sec();
+	//playerDiv.value.currentTime(playerDiv.currentTime() + 30);
+}
 </script>
 <template>
   <div class="flex flex-col md:flex-row md:space-x-4">
@@ -304,6 +324,28 @@ function volumeDown() {
                 class="mr-2"
               >
                 <OhVueIcon name="fa-volume-up" />
+              </Button>
+
+              <Button
+                severity="contrast"
+                variant="text"
+                raised
+                rounded
+                @click="skip10"
+                class="mr-2"
+              >
+                <OhVueIcon name="md-forward10-twotone" />
+              </Button>
+
+              <Button
+                severity="contrast"
+                variant="text"
+                raised
+                rounded
+                @click="skip30"
+                class="mr-2"
+              >
+                <OhVueIcon name="md-forward30" />
               </Button>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { usePrefsStore } from "@/stores/prefs.js";
 import { storeToRefs } from "pinia";
 let player = null;
 const videoPlayer = ref(null);
-const { volume, mute } = storeToRefs(usePrefsStore());
+const { volume, mute, skip10, skip30 } = storeToRefs(usePrefsStore());
 
 const props = defineProps({
 	options: {
@@ -133,6 +133,43 @@ watch(
 		}
 	},
 );
+
+watch(
+	() => skip10,
+	(newValue) => {
+		skip(10);
+	},
+);
+
+watch(
+	() => skip30,
+	(newValue) => {
+		skip(30);
+	},
+);
+
+function forward() {
+	skip(10);
+}
+
+function backward() {
+	skip(-10);
+}
+
+function skip(time) {
+	console.log("Skipping video by", time, "seconds");
+	player.currentTime = player.currentTime + time;
+}
+
+document.addEventListener("keydown", (e) => {
+	if (e.keyCode === 37) {
+		//left arrow
+		backward();
+	} else if (e.keyCode === 39) {
+		//right arrow
+		forward();
+	}
+});
 
 onUnmounted(() => {
 	if (player) {

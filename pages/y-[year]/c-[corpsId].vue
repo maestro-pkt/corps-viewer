@@ -85,7 +85,7 @@ watch(viewport.breakpoint, (newBreakpoint, oldBreakpoint) => {
 	</h1>
 
 	<div>
-    <div v-if="viewport.isLessThan('tablet')">Should render only on mobile
+    <div v-if="viewport.isLessThan('tablet')">
 
 <div v-for="(vid, index) in videoList" :key="index">
 		<div class="p-2 m-2 border rounded-lg">

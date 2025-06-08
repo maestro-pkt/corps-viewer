@@ -30,13 +30,13 @@ async function switchToYear(y) {
   <div class="mx-auto bg-white rounded-lg shadow-md overflow-hidden">
     <div class="p-6">
       <h2 class="text-xl font-bold mb-2">Year Selection</h2>
-      <div class="grid grid-rows-4 grid-flow-col gap-1">
+      <div class="grid grid-flow-row-dense grid-cols-4 grid-rows-3 gap-1">
         <div v-for="(oneYear, idx) in yearList" :id="idx">
-          <div>
+          
             <Button @click="switchToYear(oneYear)" class="mb-2">{{
               oneYear
             }}</Button>           
-          </div>
+          
         </div>
       </div>
     </div>

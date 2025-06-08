@@ -141,7 +141,7 @@ async function selectCorpsMobile(item) {
       <h2 class="text-xl font-bold mb-2">{{ route.params.year }}</h2>
 
       <div v-if="viewport.isLessThan('tablet')">
-        Should render only on mobile
+       
 
         <div>Filter buttons: Juniors / Seniors/etc</div>
 

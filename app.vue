@@ -87,10 +87,7 @@ const items = ref([
 </script>
 
 <template>
-  
-  <Toolbar>
-    <template #start>
-      <Menubar :model="items">
+  <Menubar :model="items">
         <template #item="{ item, props, hasSubmenu }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
             <a v-ripple :href="href" v-bind="props.action" @click="navigate">
@@ -105,23 +102,7 @@ const items = ref([
           </a>
         </template>
       </Menubar>
-   <!--   <Button as="router-link" label="Years" to="/years" class="mr-2" severity="secondary" text />
-
-      <Button as="router-link" label="Corps" to="/corps" class="mr-2" severity="secondary" text />
-
-      <Button as="router-link" label="Unknowns" to="/unknowns" class="mr-2" severity="secondary" text />
-
-      <Button as="router-link" label="Recents" to="/recents" class="mr-2" severity="secondary" text />
-
-      <Button as="router-link" label="Random" to="/random" class="mr-2" severity="secondary" text />
-      -->
-      <!-- <Button icon="pi pi-plus" class="mr-2" severity="secondary" text />
-      <Button icon="pi pi-print" class="mr-2" severity="secondary" text />
-      <Button icon="pi pi-upload" severity="secondary" text /> -->
-    </template>
-
-    <template #center>
-      <Breadcrumb :home="home" :model="history">
+  <Breadcrumb :home="home" :model="history">
         <template #item="{ item, props }">         
 
           <router-link v-if="item.route.href" v-slot="{ href, navigate }" :to="item.route.href" custom>
@@ -138,16 +119,6 @@ const items = ref([
           </a>
         </template>
       </Breadcrumb>
-    </template>
-
-    <template #end>
-      <!--<Button @click="gotoConfig()" label="Config" severity="contrast" variant="text" rounded>
-        <Oh-Vue-Icon name="oi-gear" />
-      </Button>
-
--->
-    </template>
-  </Toolbar>
   <!-- style="height: 100%" -->
   <NuxtPage />
 </template>

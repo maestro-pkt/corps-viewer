@@ -135,16 +135,22 @@ watch(
 );
 
 watch(
-	() => skip10,
+	() => skip10.value,
 	(newValue) => {
-		skip(10);
+		if (skip10.value === true) {
+			skip(10);
+			skip10.value = false; // Reset after skipping
+		}
 	},
 );
 
 watch(
-	() => skip30,
+	() => skip30.value,
 	(newValue) => {
-		skip(30);
+		if (skip30.value === true) {
+			skip(30);
+			skip30.value = false; // Reset after skipping
+		}
 	},
 );
 
@@ -158,7 +164,8 @@ function backward() {
 
 function skip(time) {
 	console.log("Skipping video by", time, "seconds");
-	player.currentTime = player.currentTime + time;
+	console.log("Current time:", player.currentTime());
+	player.currentTime(player.currentTime() + time);
 }
 
 document.addEventListener("keydown", (e) => {

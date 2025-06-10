@@ -105,12 +105,27 @@ watch(viewport.breakpoint, (newBreakpoint, oldBreakpoint) => {
 });
 
 const corpsByPosition = computed(() => {
-	return corps.value.sort((a, b) => {
+	/*
+  (a, b) => {
 		if (a.position < b.position) return -1;
 		if (a.position > b.position) return 1;
 		return 0;
-	});
+	}
+  */
+	return corps.value.sort(fieldSorter(["division", "position"]));
 });
+
+const fieldSorter = (fields) => (a, b) =>
+	fields
+		.map((o) => {
+			let dir = 1;
+			if (o[0] === "-") {
+				dir = -1;
+				o = o.substring(1);
+			}
+			return a[o] > b[o] ? dir : a[o] < b[o] ? -dir : 0;
+		})
+		.reduce((p, n) => (p ? p : n), 0);
 
 async function selectCorpsMobile(item) {
 	console.log(item);

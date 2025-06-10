@@ -36,6 +36,7 @@ const { year, name, position, score, title, rep, corpsId } = storeToRefs(
 const prefsStore = usePrefsStore();
 const { volume } = storeToRefs(prefsStore);
 const { history } = storeToRefs(useCrumbStore());
+const attributes = ref(["Official Video"]);
 
 console.log("rep:", rep.value);
 let repArray = []; //rep.value?.split("~!~");
@@ -90,7 +91,7 @@ function getOrdinalSuffix(number) {
 
 onMounted(async () => {
 	const vidDetails = await $fetch(`/api/video/info/${route.params.vidId}`);
-	// console.log(vidDetails);
+	console.log("vid details", vidDetails);
 
 	if (vidDetails.path.endsWith("mkv")) {
 		// console.log("Use MKV Extract");
@@ -100,7 +101,7 @@ onMounted(async () => {
 	}
 
 	const t = await $fetch(`/api/attributes/${route.params.vidId}`);
-	// console.log(t);
+	console.log("file attributes:", t);
 	if (t.length > 0) {
 		if (t[0].tag !== null) {
 			tags.value = t[0].tag.split(",");
@@ -109,6 +110,7 @@ onMounted(async () => {
 			rating.value = t[0].rating;
 		}
 		if (t[0].officialVideo === 1) {
+			// console.log("Official Video");
 			attributes.value.push("Official Video");
 		}
 		if (t[0].highCam === 1) {
@@ -164,9 +166,10 @@ const searchTags = (event) => {
 	tags.value = [...Array(10).keys()].map((item) => `${event.query}-${item}`);
 };
 
-const attributes = ref([]);
 async function checkChange() {
 	const postBody = {};
+
+	console.log("check change attributes:", attributes.value);
 
 	// console.log("attributes changed", attributes.value);
 	if (attributes.value.includes("Official Video")) {
@@ -199,6 +202,8 @@ async function checkChange() {
 	} else {
 		postBody.finalsVideo = 0;
 	}
+
+	console.log("postBody:", postBody);
 
 	await $fetch(`/api/attributes/${route.params.vidId}`, {
 		method: "post",
@@ -244,6 +249,15 @@ function skip30() {
 	prefsStore.skip30Sec();
 	//playerDiv.value.currentTime(playerDiv.currentTime() + 30);
 }
+
+const attribs = ref([
+	{ key: "highCam", name: "High Cam" },
+	{ key: "percussionCam", name: "Percussion Cam" },
+	{ key: "guardCam", name: "Guard Cam" },
+	{ key: "officialVideo", name: "Official Video" },
+	{ key: "unofficialVideo", name: "Unofficial Video" },
+	{ key: "finalsVideo", name: "Finals Video" },
+]);
 </script>
 <template>
   <div class="flex flex-col md:flex-row md:space-x-4">
@@ -394,6 +408,18 @@ function skip30() {
       <hr class="mb-2 mt-2" />
       <Panel header="Video Attributes">
         <div class="card flex flex-wrap justify-center gap-4">
+          <!-- {{ attributes }}
+          <hr/>++++++++++++++++++++++++++++<br/>
+          {{  attribs }}
+          <hr/>++++++++++++++++++++++++++++<br/> -->
+
+          <div v-for="oneAttrib of attribs" :key="oneAttrib.key" class="flex items-center gap-2">
+                <Checkbox v-model="attributes" :inputId="oneAttrib.key" name="attribute" :value="oneAttrib.name" 
+                 @update:modelValue="checkChange"
+                />
+                <label :for="oneAttrib.key">{{ oneAttrib.name }}</label>
+            </div>
+<!-- <hr/>++++++++++++++++++++++++++++<br/>
           <div class="flex items-center gap-2">
             <Checkbox
               v-model="attributes"
@@ -427,7 +453,7 @@ function skip30() {
           <div class="flex items-center gap-2">
             <Checkbox
               v-model="attributes"
-              inputId="ingredient4"
+              inputId="Official Video"
               name="attributes"
               value="Official Video"
               @update:modelValue="checkChange"
@@ -455,7 +481,7 @@ function skip30() {
               @update:modelValue="checkChange"
             />
             <label for="ingredient6"> Finals Video </label>
-          </div>
+          </div> -->
         </div>
       </Panel>
 

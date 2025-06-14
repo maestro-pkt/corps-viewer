@@ -27,3 +27,8 @@ todo.txt
 .env*
 
 data/*
+data/dci-2.db
+byYears.json
+byCorps.json
+corpsList.json
+dci.db

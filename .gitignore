@@ -28,7 +28,7 @@ todo.txt
 
 data/*
 data/dci-2.db
-byYears.json
-byCorps.json
-corpsList.json
+data/byYears.json
+data/byCorps.json
+data/corpsList.json
 dci.db

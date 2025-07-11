@@ -28,6 +28,7 @@ addIcons(
 import { useCorpsStore } from "@/stores/corps.js";
 import { useCrumbStore } from "@/stores/breadcrumb.js";
 import { storeToRefs } from "pinia";
+import VideoAttributes from "~/components/VideoAttributes.vue";
 
 const route = useRoute();
 const { year, name, position, score, title, rep, corpsId } = storeToRefs(
@@ -36,7 +37,6 @@ const { year, name, position, score, title, rep, corpsId } = storeToRefs(
 const prefsStore = usePrefsStore();
 const { volume } = storeToRefs(prefsStore);
 const { history } = storeToRefs(useCrumbStore());
-const attributes = ref(["Official Video"]);
 
 console.log("rep:", rep.value);
 let repArray = []; //rep.value?.split("~!~");
@@ -66,9 +66,6 @@ const videoOptions = {
 };
 
 const vidType = ref();
-const tags = ref([]);
-const rating = ref(0);
-const viewCntr = ref(0);
 
 const suffixes = ["th", "st", "nd", "rd"];
 
@@ -99,117 +96,7 @@ onMounted(async () => {
 	} else {
 		vidType.value = "video/mp4";
 	}
-
-	const t = await $fetch(`/api/attributes/${route.params.vidId}`);
-	console.log("file attributes:", t);
-	if (t.length > 0) {
-		if (t[0].tag !== null) {
-			tags.value = t[0].tag.split(",");
-		}
-		if (t[0].rating !== null) {
-			rating.value = t[0].rating;
-		}
-		if (t[0].officialVideo === 1) {
-			// console.log("Official Video");
-			attributes.value.push("Official Video");
-		}
-		if (t[0].highCam === 1) {
-			attributes.value.push("High Cam");
-		}
-		if (t[0].percussionCam === 1) {
-			attributes.value.push("Percussion Cam");
-		}
-		if (t[0].guardCam === 1) {
-			attributes.value.push("Guard Cam");
-		}
-		if (t[0].finalsVideo === 1) {
-			attributes.value.push("Finals Video");
-		}
-		if (t[0].unofficialVideo === 1) {
-			attributes.value.push("Unofficial Video");
-		}
-
-		viewCntr.value = t[0]?.viewCntr ? t[0].viewCntr + 1 : 1;
-		console.log(t[0]?.viewCntr);
-		console.log(viewCntr.value);
-	}
-
-	await $fetch(`/api/attributes/${route.params.vidId}`, {
-		method: "post",
-		body: {
-			viewCntr: viewCntr.value,
-		},
-	});
 });
-
-async function ratingChange(x) {
-	// console.log(x.value);
-	await $fetch(`/api/attributes/${route.params.vidId}`, {
-		method: "post",
-		body: { rating: x.value },
-	});
-}
-
-async function tagUpdate(x) {
-	// console.log("tags changed", x);
-	// console.log("update db to ", x.value);
-
-	await $fetch(`/api/attributes/${route.params.vidId}`, {
-		method: "post",
-		body: { tags: x.value },
-	});
-}
-// Dont know why this works but it does...
-const searchTags = (event) => {
-	// console.log("search tags:", event.query);
-
-	tags.value = [...Array(10).keys()].map((item) => `${event.query}-${item}`);
-};
-
-async function checkChange() {
-	const postBody = {};
-
-	console.log("check change attributes:", attributes.value);
-
-	// console.log("attributes changed", attributes.value);
-	if (attributes.value.includes("Official Video")) {
-		postBody.officialVideo = 1;
-	} else {
-		postBody.officialVideo = 0;
-	}
-	if (attributes.value.includes("High Cam")) {
-		postBody.highCam = 1;
-	} else {
-		postBody.highCam = 0;
-	}
-	if (attributes.value.includes("Percussion Cam")) {
-		postBody.percussionCam = 1;
-	} else {
-		postBody.percussionCam = 0;
-	}
-	if (attributes.value.includes("Guard Cam")) {
-		postBody.guardCam = 1;
-	} else {
-		postBody.guardCam = 0;
-	}
-	if (attributes.value.includes("Unofficial Video")) {
-		postBody.unofficialVideo = 1;
-	} else {
-		postBody.unofficialVideo = 0;
-	}
-	if (attributes.value.includes("Finals Video")) {
-		postBody.finalsVideo = 1;
-	} else {
-		postBody.finalsVideo = 0;
-	}
-
-	console.log("postBody:", postBody);
-
-	await $fetch(`/api/attributes/${route.params.vidId}`, {
-		method: "post",
-		body: postBody,
-	});
-}
 
 const playerDiv = ref(null);
 
@@ -249,15 +136,6 @@ function skip30() {
 	prefsStore.skip30Sec();
 	//playerDiv.value.currentTime(playerDiv.currentTime() + 30);
 }
-
-const attribs = ref([
-	{ key: "highCam", name: "High Cam" },
-	{ key: "percussionCam", name: "Percussion Cam" },
-	{ key: "guardCam", name: "Guard Cam" },
-	{ key: "officialVideo", name: "Official Video" },
-	{ key: "unofficialVideo", name: "Unofficial Video" },
-	{ key: "finalsVideo", name: "Finals Video" },
-]);
 </script>
 <template>
   <div class="flex flex-col md:flex-row md:space-x-4">
@@ -384,7 +262,7 @@ const attribs = ref([
           Place {{ position + getOrdinalSuffix(Number.parseInt(position)) }}
         </p>
         <p class="text-gray-700">Score {{ score }}</p>
-        <p class="text-gray-700">Views: {{ viewCntr }}</p>
+        <!-- <p class="text-gray-700">Views: {{ viewCntr }}</p> -->
       </Panel>
       <hr class="mb-2 mt-2" />
       <Panel :header="title">
@@ -393,98 +271,8 @@ const attribs = ref([
         </ul>
       </Panel>
       <hr class="mb-2 mt-2" />
-      <Panel header="Tags">
-        <AutoComplete
-          v-model="tags"
-          inputId="multiple-ac-2"
-          multiple
-          fluid
-          @complete="searchTags"
-          @change="tagUpdate"
-          :typeahead="false"
-        />
-        <Rating v-model="rating" @change="ratingChange" class="mt-2" />
-      </Panel>
-      <hr class="mb-2 mt-2" />
-      <Panel header="Video Attributes">
-        <div class="card flex flex-wrap justify-center gap-4">
-          <!-- {{ attributes }}
-          <hr/>++++++++++++++++++++++++++++<br/>
-          {{  attribs }}
-          <hr/>++++++++++++++++++++++++++++<br/> -->
-
-          <div v-for="oneAttrib of attribs" :key="oneAttrib.key" class="flex items-center gap-2">
-                <Checkbox v-model="attributes" :inputId="oneAttrib.key" name="attribute" :value="oneAttrib.name" 
-                 @update:modelValue="checkChange"
-                />
-                <label :for="oneAttrib.key">{{ oneAttrib.name }}</label>
-            </div>
-<!-- <hr/>++++++++++++++++++++++++++++<br/>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="attributes"
-              inputId="ingredient1"
-              name="attributes"
-              value="High Cam"
-              @update:modelValue="checkChange"
-            />
-            <label for="ingredient1"> High Cam </label>
-          </div>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="attributes"
-              inputId="ingredient2"
-              name="attributes"
-              value="Percussion Cam"
-              @update:modelValue="checkChange"
-            />
-            <label for="ingredient2"> Percussion Cam </label>
-          </div>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="attributes"
-              inputId="ingredient3"
-              name="attributes"
-              value="Guard Cam"
-              @update:modelValue="checkChange"
-            />
-            <label for="ingredient3"> Guard Cam </label>
-          </div>
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="attributes"
-              inputId="Official Video"
-              name="attributes"
-              value="Official Video"
-              @update:modelValue="checkChange"
-            />
-            <label for="ingredient4"> Official Video </label>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="attributes"
-              inputId="ingredient5"
-              name="attributes"
-              value="Unofficial Video"
-              @update:modelValue="checkChange"
-            />
-            <label for="ingredient5"> Unofficial Video </label>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <Checkbox
-              v-model="attributes"
-              inputId="ingredient6"
-              name="attributes"
-              value="Finals Video"
-              @update:modelValue="checkChange"
-            />
-            <label for="ingredient6"> Finals Video </label>
-          </div> -->
-        </div>
-      </Panel>
-
+    <VideoAttributes :vidId="$route.params.vidId" />
+    
       <!-- <p class="text-gray-700">Add bitrate, codec, container, channels and sample rate</p> -->
     </div>
   </div>

@@ -7,14 +7,14 @@ services:
   app:
     build:
       context: .
-      #target: 'dev'
-      target: 'prod'
+      target: 'dev'
+      #target: 'prod'
 
     #image: corps-viewer:latest
     container_name: corps-viewer
     ports:
       - '3001:3000'
-      - '9229:9229'
+      #- '9229:9229'
     volumes:
       - ./data/:/db:rw
       #- /mnt/e:/media:ro

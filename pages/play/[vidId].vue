@@ -2,139 +2,138 @@
 import VideoPlayer from "@/components/VideoPlayer.vue";
 import "video.js/dist/video-js.css";
 import {
-	BiZoomIn,
-	BiZoomOut,
-	FaVolumeMute,
-	FaVolumeUp,
-	FaVolumeDown,
-	MdForward10Twotone,
-	MdForward30,
+  BiZoomIn,
+  BiZoomOut,
+  FaVolumeMute,
+  FaVolumeUp,
+  FaVolumeDown,
+  MdForward10Twotone,
+  MdForward30,
 } from "oh-vue-icons/icons";
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { ref } from "vue";
 import { usePrefsStore } from "@/stores/prefs.js";
-
-addIcons(
-	BiZoomIn,
-	BiZoomOut,
-	FaVolumeMute,
-	FaVolumeUp,
-	FaVolumeDown,
-	MdForward10Twotone,
-	MdForward30,
-);
-// import mkvExtract from "~/services/mkvExtract";
-
 import { useCorpsStore } from "@/stores/corps.js";
 import { useCrumbStore } from "@/stores/breadcrumb.js";
 import { storeToRefs } from "pinia";
 import VideoAttributes from "~/components/VideoAttributes.vue";
+import ScoreRep from "~/components/ScoreRep.vue";
+
+
+addIcons(
+  BiZoomIn,
+  BiZoomOut,
+  FaVolumeMute,
+  FaVolumeUp,
+  FaVolumeDown,
+  MdForward10Twotone,
+  MdForward30,
+);
+
 
 const route = useRoute();
-const { year, name, position, score, title, rep, corpsId } = storeToRefs(
-	useCorpsStore(),
-);
+// const {
+//   //year, 
+//   name, position, score, title, rep,
+//   //corpsId 
+// } = storeToRefs(
+//   useCorpsStore(),
+// );
+
+
 const prefsStore = usePrefsStore();
 const { volume } = storeToRefs(prefsStore);
-const { history } = storeToRefs(useCrumbStore());
 
-console.log("rep:", rep.value);
-let repArray = []; //rep.value?.split("~!~");
-if (rep.value && rep.value !== null && typeof rep.value === "string") {
-	console.log(typeof rep.value);
-	repArray = rep.value.split("~!~");
-} else {
-	repArray.push("Something wrong with rep");
-}
+const name = ref("");
+const position = ref(0);
+const score = ref(0.0);
+const title = ref("Repertoire");
+const rep = ref("");
+const vidType = ref();
+const corpsId = ref();
+const year = ref();
+
 
 const videoOptions = {
-	autoplay: true,
-	controls: true,
-	fluid: true,
-	//fill: true,
-	inactivityTimeout: 0, // 0 indicates that the user will never be considered inactive.
-	enableSmoothSeeking: true,
-	sources: [],
-	playsinline: true,
-	enableDocumentPictureInPicture: true,
-	controlBar: {
-		skipButtons: {
-			forward: 10,
-			backward: 10,
-		},
-	},
+  autoplay: true,
+  controls: true,
+  fluid: true,
+  //fill: true,
+  inactivityTimeout: 0, // 0 indicates that the user will never be considered inactive.
+  enableSmoothSeeking: true,
+  sources: [],
+  playsinline: true,
+  enableDocumentPictureInPicture: true,
+  controlBar: {
+    skipButtons: {
+      forward: 10,
+      backward: 10,
+    },
+  },
 };
 
-const vidType = ref();
 
-const suffixes = ["th", "st", "nd", "rd"];
-
-function getOrdinalSuffix(number) {
-	// console.log("getOrdinalSuffix", number, Number.isNaN(number));
-	if (number !== null && !Number.isNaN(number)) {
-		// Get ones digit of number
-		const onesDigit = number % 10;
-
-		// Handle special cases for 11, 12, 13
-		if (number % 100 >= 11 && number % 100 <= 13) {
-			return "th";
-		}
-
-		// Pick suffix from array based on ones digit
-		return onesDigit < 4 ? suffixes[onesDigit] : suffixes[0];
-	}
-	return "";
-}
 
 onMounted(async () => {
-	const vidDetails = await $fetch(`/api/video/info/${route.params.vidId}`);
-	console.log("vid details", vidDetails);
+  const vidDetails = await $fetch(`/api/video/info/file/${route.params.vidId}`);
+  console.log("vid details", vidDetails);
+  corpsId.value = vidDetails.corpsId;
+  year.value = vidDetails.year;
 
-	if (vidDetails.path.endsWith("mkv")) {
-		// console.log("Use MKV Extract");
-		vidType.value = "video/webm";
-	} else {
-		vidType.value = "video/mp4";
-	}
+
+  if (vidDetails.path.endsWith("mkv")) {
+    // console.log("Use MKV Extract");
+    vidType.value = "video/webm";
+  } else {
+    vidType.value = "video/mp4";
+  }
+
+  const showDetails = await $fetch(`/api/video/info/show?corpsId=${vidDetails.corpsId}&year=${vidDetails.year}`);
+  console.log("show details", showDetails);
+  if (showDetails) {
+    position.value = showDetails.position;
+    score.value = showDetails.score;
+    title.value = showDetails.title;
+    rep.value = showDetails.rep;
+    name.value = showDetails.name;
+  } else {
+    console.error("No show details found for corpsId:", newCorpsId);
+  }
 });
 
 const playerDiv = ref(null);
 
 const makeBigger = () => {
-	console.log("bigger");
-	playerDiv.value.style.width = `${Number.parseInt(playerDiv.value.offsetWidth) + 10}px`;
+  console.log("bigger");
+  playerDiv.value.style.width = `${Number.parseInt(playerDiv.value.offsetWidth) + 10}px`;
 };
 
 function makeSmaller() {
-	console.log("smaller");
-
-	console.log(playerDiv.value);
-	// console.log(playerDiv.value.offsetWidth);
-	// console.log(playerDiv.value.style.width);
-	playerDiv.value.style.width = `${Number.parseInt(playerDiv.value.offsetWidth) - 10}px`;
+  console.log("smaller");
+  playerDiv.value.style.width = `${Number.parseInt(playerDiv.value.offsetWidth) - 10}px`;
 }
 
 function muteVolume() {
-	console.log("mute");
-	prefsStore.toggleMute();
+  console.log("mute");
+  prefsStore.toggleMute();
 }
 function volumeUp() {
-	console.log("vol up");
-	prefsStore.volUp();
+  console.log("vol up");
+  prefsStore.volUp();
 }
 function volumeDown() {
-	console.log("vol down");
-	prefsStore.volDown();
+  console.log("vol down");
+  prefsStore.volDown();
 }
 function skip10() {
-	console.log("skip 10");
-	prefsStore.skip10Sec();
-	// playerDiv.value.currentTime(playerDiv.value.currentTime() + 10);
+  console.log("skip 10");
+  prefsStore.skip10Sec();
+
 }
 function skip30() {
-	console.log("skip 30");
-	prefsStore.skip30Sec();
-	//playerDiv.value.currentTime(playerDiv.currentTime() + 30);
+  console.log("skip 30");
+  prefsStore.skip30Sec();
+
 }
 </script>
 <template>
@@ -158,85 +157,36 @@ function skip30() {
           </div>
         </template>
         <template #icons>
-          <Button
-            severity="contrast"
-            variant="text"
-            raised
-            rounded
-            @click="makeBigger"
-            class="mr-2"
-          >
+          <Button severity="contrast" variant="text" raised rounded @click="makeBigger" class="mr-2">
             <OhVueIcon name="bi-zoom-in" />
           </Button>
 
-          <Button
-            icon="pi pi-minus"
-            severity="contrast"
-            variant="text"
-            raised
-            rounded
-            @click="makeSmaller"
-          >
+          <Button icon="pi pi-minus" severity="contrast" variant="text" raised rounded @click="makeSmaller">
             <OhVueIcon name="bi-zoom-out" />
           </Button>
         </template>
         <template #footer>
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-2">
-              <Button
-                severity="contrast"
-                variant="text"
-                raised
-                rounded
-                @click="muteVolume"
-                class="mr-2"
-              >
+              <Button severity="contrast" variant="text" raised rounded @click="muteVolume" class="mr-2">
                 <OhVueIcon name="fa-volume-mute" />
               </Button>
-             <Button
-                severity="contrast"
-                variant="text"
-                raised
-                rounded
-                @click="volumeDown"
-                class="mr-2"
-              >
+              <Button severity="contrast" variant="text" raised rounded @click="volumeDown" class="mr-2">
                 <OhVueIcon name="fa-volume-down" />
               </Button>
               <span>
-              {{ volume }}
+                {{ volume }}
               </span>
-              
-               <Button
-                severity="contrast"
-                variant="text"
-                raised
-                rounded
-                @click="volumeUp"
-                class="mr-2"
-              >
+
+              <Button severity="contrast" variant="text" raised rounded @click="volumeUp" class="mr-2">
                 <OhVueIcon name="fa-volume-up" />
               </Button>
 
-              <Button
-                severity="contrast"
-                variant="text"
-                raised
-                rounded
-                @click="skip10"
-                class="mr-2"
-              >
+              <Button severity="contrast" variant="text" raised rounded @click="skip10" class="mr-2">
                 <OhVueIcon name="md-forward10-twotone" />
               </Button>
 
-              <Button
-                severity="contrast"
-                variant="text"
-                raised
-                rounded
-                @click="skip30"
-                class="mr-2"
-              >
+              <Button severity="contrast" variant="text" raised rounded @click="skip30" class="mr-2">
                 <OhVueIcon name="md-forward30" />
               </Button>
             </div>
@@ -244,36 +194,16 @@ function skip30() {
         </template>
 
         <div class="object-cover m-0" ref="playerDiv">
-          <video-player
-            :options="videoOptions"
-            :vidId="$route.params.vidId"
-            :vidType="vidType"
-          />
+          <video-player :options="videoOptions" :vidId="$route.params.vidId" :vidType="vidType" />
         </div>
       </Panel>
     </div>
     <div class="md:w-1/3 bg-gray-100 shadow-md rounded-lg p-4">
-      <!-- <h2 class="text-xl font-bold mb-2">Sidebar</h2> -->
-      <!-- <p class="text-gray-700">This should be what they played along with scores.
-				This needs to scroll independently from the main/video column
-			</p> -->
-      <Panel header="Finals Placement" v-if="score !== null">
-        <p class="text-gray-700">
-          Place {{ position + getOrdinalSuffix(Number.parseInt(position)) }}
-        </p>
-        <p class="text-gray-700">Score {{ score }}</p>
-        <!-- <p class="text-gray-700">Views: {{ viewCntr }}</p> -->
-      </Panel>
-      <hr class="mb-2 mt-2" />
-      <Panel :header="title">
-        <ul class="list-disc list-inside" v-for="one in repArray">
-          <li class="text-gray-700">{{ one }}</li>
-        </ul>
-      </Panel>
-      <hr class="mb-2 mt-2" />
-    <VideoAttributes :vidId="$route.params.vidId" />
-    
-      <!-- <p class="text-gray-700">Add bitrate, codec, container, channels and sample rate</p> -->
+
+      <ScoreRep :position="position" :score="score" :title="title" :rep="rep" />
+      <VideoAttributes :vidId="$route.params.vidId" />
+
+
     </div>
   </div>
 </template>

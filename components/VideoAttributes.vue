@@ -17,6 +17,7 @@
 					<label :for="oneAttrib.key">{{ oneAttrib.name }}</label>
 				</div>
 			</div>
+			<p class="text-gray-700">Views: {{ viewCntr }}</p>
 		</Panel>
 		<hr class="mb-2 mt-2" />
 		<Panel header="Tags">
@@ -40,7 +41,7 @@ const props = defineProps({
 
 const tags = ref([]);
 const rating = ref(0);
-const viewCntr = ref(0);
+const viewCntr = ref(1);
 const attributes = ref([""]);
 
 const attribs = ref([
@@ -90,17 +91,18 @@ onMounted(async () => {
 
 		viewCntr.value = t[0]?.viewCntr ? t[0].viewCntr + 1 : 1;
 		console.log(t[0]?.viewCntr);
-		console.log(viewCntr.value);
-
-		$fetch(`/api/attributes/${props.vidId}`, {
-			method: "post",
-			body: {
-				viewCntr: viewCntr.value,
-			},
-		});
 
 		console.log(attributes.value);
 	}
+
+	console.log('Views: ', viewCntr.value);
+
+	$fetch(`/api/attributes/${props.vidId}`, {
+		method: "post",
+		body: {
+			viewCntr: viewCntr.value,
+		},
+	});
 });
 
 async function ratingChange(x) {

@@ -5,7 +5,8 @@ export default defineEventHandler((event) => {
   if (!dbfile) return { error: '... error messages' };
   const db = new sqlite3.Database(dbfile);
 
-  const vidId = event.context.params.vidId;
+  const vidId = event.context.params?.vidId;
+  if (!vidId) return { error: 'Missing vidId parameter' };
 
   return new Promise((resolve, reject) => {
     const sql = db.prepare('SELECT * FROM files where key=?');

@@ -24,6 +24,7 @@ onMounted(() => {
 		if (lineArray.length > 30) {
 			lineArray.splice(0, 1);
 		}
+
 		streamedText.value = lineArray.join("\n").replaceAll("~||~", "\n");
 	};
 
@@ -46,16 +47,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
-    
-    <Panel header="Scanning for new files...">
-      <div class="bg-black p-6 rounded-lg shadow-lg max-w-full  ">
-        <pre class="font-mono text-gray-300 text-sm">
+	<div>
+
+		<Panel header="Scanning for new files...">
+			<div class="bg-black p-6 rounded-lg shadow-lg max-w-full  ">
+				<pre class="font-mono text-gray-300 text-sm">
     <code>
 {{ streamedText }}
     </code>
   </pre>
-      </div>
-    </Panel>
-  </div>
+			</div>
+		</Panel>
+	</div>
 </template>

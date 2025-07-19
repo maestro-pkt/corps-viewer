@@ -2,9 +2,9 @@
   <div>
     <Panel header="Finals Placement" v-if="props.score !== null">
       <p class="text-gray-700">
-        Place {{ props.position + getOrdinalSuffix(Number.parseInt(props.position)) }}
+        Place: <b>{{ props.position + getOrdinalSuffix(Number.parseInt(props.position)) }}</b>
       </p>
-      <p class="text-gray-700">Score {{ props.score }}</p>
+      <p class="text-gray-700">Score: <b>{{ props.score }}</b></p>
 
     </Panel>
     <hr class="mb-2 mt-2" />

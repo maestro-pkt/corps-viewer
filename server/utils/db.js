@@ -138,6 +138,14 @@ db.exec(`
   ) STRICT
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ignoreFiles (
+    key INTEGER PRIMARY KEY AUTOINCREMENT,
+    path TEXT,		
+    UNIQUE(path) ON CONFLICT IGNORE
+  ) STRICT
+`);
+
 export const insertVideo = db.prepare(
 	"INSERT INTO files (corpsId, year, path, title, duration, filetype, fileinfo, dateAdded ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 );

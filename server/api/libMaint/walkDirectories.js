@@ -1,33 +1,77 @@
 import sqlite3 from "better-sqlite3";
 import klaw from "klaw";
 import { parseFile } from "music-metadata";
+import fs from "node:fs";
 import path from "node:path";
 
 const corpsDirs = [process.env?.MEDIA_PATH];
-
-// const corpsDirs = [
-// 	"e:/DrumCorpsVideos",
-// 	"e:/DrumCorpsVideos2",
-// 	"e:/DrumCorpsVideos3",
-// 	"e:/DrumCorpsVideos4",
-// ];
-
-// const corpsDirs = [
-// 	"/mnt/e/DrumCorpsVideos",
-// 	"/mnt/e/DrumCorpsVideos2",
-// 	"/mnt/e/DrumCorpsVideos3",
-// ];
-
 const dbfile = process.env?.SQLITE3_DATABASE;
+let fileCntr = 0;
+let newFileCntr = 0;
+let unknownCntr = 0;
+
 const db = new sqlite3(dbfile);
 
 // Get listings of every corps name
 const corpsNameMap = getCorpsNames();
 const corpsNamesList = Array.from(corpsNameMap.keys());
 
-let fileCntr = 0;
-let newFileCntr = 0;
-let unknownCntr = 0;
+export default defineEventHandler(async (event) => {
+	const eventStream = createEventStream(event);
+
+	if (!dbfile) return { error: "... error messages" };
+
+	// Walk through each directory that contains videos
+	for (const oneDir of corpsDirs) {
+		console.log("starting next directory:", oneDir);
+		//
+		// Get all of the files
+		klaw(oneDir, { nodir: true })
+			.on("readable", async function () {
+				let file;
+
+				// Walk through each file in the directory
+				// biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
+				while ((file = this.read())) {
+					// Format of structure
+					// file = {path: '/some/dir/file1', stats: {}},
+					//        S_IFREG    0100000   regular file
+					const isRegFile =
+						(file.stats.mode & fs.constants.S_IFMT) === fs.constants.S_IFREG;
+					if (!isRegFile) {
+						console.log("Skipping non-regular file:", file.path);
+						continue; // skip non-regular files
+					}
+
+					await eventStream.push(
+						"=================================================================",
+					);
+					await eventStream.push(file);
+					// console.log(
+					// 	"=================================================================",
+					// );
+					// console.log(file);
+
+					await eventStream.push(`${file.path.replaceAll("\n", "~||~")}`);
+					await processFile(file, eventStream);
+				}
+			})
+			.on("end", async () => {
+				await eventStream.push(
+					`Processed ${oneDir} ; ${fileCntr} files; ${unknownCntr} unknowns; ${newFileCntr} new files`,
+				);
+				//await eventStream.push("Stream ended");
+				// Dont close the stream because there are more directories to do.
+				//eventStream.close();
+				console.log(
+					`Processed ${oneDir} ; ${fileCntr} files; ${unknownCntr} unknowns; ${newFileCntr} new files`,
+				);
+			});
+	}
+	console.log("Done processing all directories");
+
+	return eventStream.send();
+});
 
 function getCorpsIds() {
 	const query = db.prepare(
@@ -167,7 +211,7 @@ async function processFile(oneFile, eventStream) {
 
 	if (matchedNames.length > 0) {
 		// console.log("A match was found:", matchedNames);
-		// await eventStream.push(`A match was found: ${matchedNames.join(", ")}`);
+		await eventStream.push(`A match was found: ${matchedNames.join(", ")}`);
 
 		if (matchedNames.length === 1) {
 			theName = matchedNames[0];
@@ -192,10 +236,10 @@ async function processFile(oneFile, eventStream) {
 			});
 
 			//console.log(corpsNameMap.get(matchedNames[0]));
-			//await eventStream.push(`Name: ${corpsNameMap.get(matchedNames[0])}`);
+			await eventStream.push(`Name: ${corpsNameMap.get(matchedNames[0])}`);
 		}
 	} else {
-		// console.log("No match found");
+		console.log("No match found");
 		await eventStream.push("No match found");
 		unknownCntr++;
 		const insertUnknown = db.prepare(
@@ -271,48 +315,3 @@ async function processFile(oneFile, eventStream) {
 		}
 	}
 }
-
-export default defineEventHandler(async (event) => {
-	const eventStream = createEventStream(event);
-
-	if (!dbfile) return { error: "... error messages" };
-
-	// Walk through each directory that contains videos
-	for (const oneDir of corpsDirs) {
-		console.log("starting next directory:", oneDir);
-		//
-		// Get all of the files
-		klaw(oneDir, { nodir: true })
-			.on("readable", async function () {
-				let file;
-				// Walk through each file in the directory
-				// biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
-				while ((file = this.read())) {
-					// Format of structure
-					// file = {path: '/some/dir/file1', stats: {}},
-					await eventStream.push(
-						"=================================================================",
-					);
-					// console.log(
-					// 	"=================================================================",
-					// );
-					await eventStream.push(`${file.path.replaceAll("\n", "~||~")}`);
-					await processFile(file, eventStream);
-				}
-			})
-			.on("end", async () => {
-				await eventStream.push(
-					`Processed ${oneDir} ; ${fileCntr} files; ${unknownCntr} unknowns; ${newFileCntr} new files`,
-				);
-				//await eventStream.push("Stream ended");
-				// Dont close the stream because there are more directories to do.
-				//eventStream.close();
-				console.log(
-					`Processed ${oneDir} ; ${fileCntr} files; ${unknownCntr} unknowns; ${newFileCntr} new files`,
-				);
-			});
-	}
-	console.log("aaaaaaaaaaaaaaaaaaaaaa");
-
-	return eventStream.send();
-});

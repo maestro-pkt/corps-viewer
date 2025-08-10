@@ -181,7 +181,8 @@ async function selectCorpsMobile(item) {
 
         </div>
       </div>
-      <div v-else>Current breakpoint: {{ viewport.breakpoint }}
+      <div v-else>
+        <!-- Current breakpoint: {{ viewport.breakpoint }} -->
 
         <DataTable :value="corps" v-model:selection="selectedCorps" selectionMode="single" sortMode="multiple"
           :multiSortMeta="multiSortMeta" scrollable stripedRows tableStyle="min-width: 50rem; max-height: 50%"

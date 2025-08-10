@@ -1,19 +1,19 @@
 // import sqlite3 from 'sqlite3';
-import sqlite3 from "better-sqlite3";
-import fs from "fs-extra/esm";
-import { join } from "node:path";
+import sqlite3 from 'better-sqlite3';
+import fs from 'fs-extra/esm';
+import { join } from 'node:path';
 
 const dataPath = process.env?.DATA_PATH;
 
-console.log("dataPath", dataPath);
+console.log('dataPath', dataPath);
 
 const dbfile = process.env?.SQLITE3_DATABASE;
-console.log("dbfile", dbfile);
+console.log('dbfile', dbfile);
 const db = new sqlite3(dbfile);
 
 export const getVideos = () => {
-	const query2 = db.prepare(
-		`select 
+  const query2 = db.prepare(
+    `select 
     files.key,
 files.corpsId, 
 files.title as filetitle, 
@@ -30,19 +30,21 @@ scores.score,
 scores.rep,
 scores.title as showtitle
 
-from files inner join scores on files.corpsId = scores.corpsId and files.year = scores.year`,
-		//"select * from files inner join scores on files.corpsId = scores.corpsId and files.year = scores.year",
-	);
-	// Execute the prepared statement and log the result set.
-	return query2.all();
+from files inner join scores on files.corpsId = scores.corpsId and files.year = scores.year`
+    
+    //"select * from files inner join scores on files.corpsId = scores.corpsId and files.year = scores.year",
+  );
+  // Execute the prepared statement and log the result set.
+  return query2.all();
 };
 
 export default defineEventHandler(() => {
-	if (!dbfile) return { error: "... error messages" };
+  if (!dbfile) return { error: '... error messages' };
 
-	const corpsList = [];
+  const corpsList = [];
 
-	const byCorps = {}; /*
+	const byCorps = {};
+	/*
 corpsId => {
   corpsname
   history
@@ -59,7 +61,8 @@ corpsId => {
   }
 */
 
-	const byYears = {}; /*
+  const byYears = {};
+  /*
 year => {
   corpsId => {
     corpsname
@@ -73,88 +76,88 @@ year => {
   }
 */
 
-	const unknowns = {};
+  const unknowns = {};
 
-	// This is every video that has been associated to a corps
-	const allVideos = getVideos();
+  // This is every video that has been associated to a corps
+  const allVideos = getVideos();
 
-	for (const oneVideo of allVideos) {
-		// console.log(oneVideo);
+  for (const oneVideo of allVideos) {
+    // console.log(oneVideo);
 
-		const idx = corpsList.findIndex((c) => c.corpsId === oneVideo.corpsId);
-		if (idx === -1) {
-			corpsList.push({
-				corpsId: oneVideo.corpsId,
-				name: oneVideo.name,
-			});
-		}
+    const idx = corpsList.findIndex((c) => c.corpsId === oneVideo.corpsId);
+    if (idx === -1) {
+      corpsList.push({
+        corpsId: oneVideo.corpsId,
+        name: oneVideo.name,
+      });
+    }
 
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
-		if (!byCorps.hasOwnProperty(oneVideo.corpsId)) {
-			byCorps[oneVideo.corpsId] = {
-				corpsId: oneVideo.corpsId,
-				name: oneVideo.name,
-				years: {},
-			};
-		}
+    // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+    if (!byCorps.hasOwnProperty(oneVideo.corpsId)) {
+      byCorps[oneVideo.corpsId] = {
+        corpsId: oneVideo.corpsId,
+        name: oneVideo.name,
+        years: {},
+      };
+    }
 
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
-		if (!byCorps[oneVideo.corpsId].years.hasOwnProperty(oneVideo.year)) {
-			byCorps[oneVideo.corpsId].years[oneVideo.year] = {
-				year: oneVideo.year,
-				division: oneVideo.division,
-				score: oneVideo.score,
-				position: oneVideo.position,
-				title: oneVideo.showtitle,
-				rep: oneVideo.rep,
-				shows: [],
-			};
-		}
+    // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+    if (!byCorps[oneVideo.corpsId].years.hasOwnProperty(oneVideo.year)) {
+      byCorps[oneVideo.corpsId].years[oneVideo.year] = {
+        year: oneVideo.year,
+        division: oneVideo.division,
+        score: oneVideo.score,
+        position: oneVideo.position,
+        title: oneVideo.showtitle,
+        rep: oneVideo.rep,
+        shows: [],
+      };
+    }
 
-		byCorps[oneVideo.corpsId].years[oneVideo.year].shows.push({
-			year: oneVideo.year,
-			fileinfo: oneVideo.fileinfo,
-			filetype: oneVideo.filetype,
-			duration: oneVideo.duration,
-			resolution: oneVideo.resolution,
-			title: oneVideo.filetitle,
-			path: oneVideo.path,
-			key: oneVideo.key,
-		});
+    byCorps[oneVideo.corpsId].years[oneVideo.year].shows.push({
+      year: oneVideo.year,
+      fileinfo: oneVideo.fileinfo,
+      filetype: oneVideo.filetype,
+      duration: oneVideo.duration,
+      resolution: oneVideo.resolution,
+      title: oneVideo.filetitle,
+      path: oneVideo.path,
+      key: oneVideo.key,
+    });
 
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
-		if (!byYears.hasOwnProperty(oneVideo.year)) {
-			byYears[oneVideo.year] = {};
-		}
+    // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+    if (!byYears.hasOwnProperty(oneVideo.year)) {
+      byYears[oneVideo.year] = {};
+    }
 
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
-		if (!byYears[oneVideo.year].hasOwnProperty(oneVideo.corpsId)) {
-			byYears[oneVideo.year][oneVideo.corpsId] = {
-				corpsId: oneVideo.corpsId,
-				name: oneVideo.name,
-				score: oneVideo.score,
-				position: oneVideo.position,
-				title: oneVideo.showtitle,
-				rep: oneVideo.rep,
-				shows: [],
-				division: oneVideo.division,
-			};
-		}
+    // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+    if (!byYears[oneVideo.year].hasOwnProperty(oneVideo.corpsId)) {
+      byYears[oneVideo.year][oneVideo.corpsId] = {
+        corpsId: oneVideo.corpsId,
+        name: oneVideo.name,
+        score: oneVideo.score,
+        position: oneVideo.position,
+        title: oneVideo.showtitle,
+        rep: oneVideo.rep,
+        shows: [],
+        division: oneVideo.division,
+      };
+    }
 
-		byYears[oneVideo.year][oneVideo.corpsId].shows.push({
-			fileinfo: oneVideo.fileinfo,
-			filetype: oneVideo.filetype,
-			duration: oneVideo.duration,
-			resolution: oneVideo.resolution,
-			title: oneVideo.filetitle,
-			path: oneVideo.path,
-			key: oneVideo.key,
-		});
-	}
+    byYears[oneVideo.year][oneVideo.corpsId].shows.push({
+      fileinfo: oneVideo.fileinfo,
+      filetype: oneVideo.filetype,
+      duration: oneVideo.duration,
+      resolution: oneVideo.resolution,
+      title: oneVideo.filetitle,
+      path: oneVideo.path,
+      key: oneVideo.key,
+    });
+  }
 
-	fs.writeJSONSync(join(dataPath, "byCorps.json"), byCorps);
-	fs.writeJSONSync(join(dataPath, "byYears.json"), byYears);
-	fs.writeJSONSync(join(dataPath, "corpsList.json"), corpsList);
+  fs.writeJSONSync(join(dataPath, 'byCorps.json'), byCorps);
+  fs.writeJSONSync(join(dataPath, 'byYears.json'), byYears);
+  fs.writeJSONSync(join(dataPath, 'corpsList.json'), corpsList);
 
-	return "done";
+  return 'done';
 });

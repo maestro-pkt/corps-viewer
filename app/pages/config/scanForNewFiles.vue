@@ -28,14 +28,18 @@ onMounted(() => {
 		streamedText.value = lineArray.join("\n").replaceAll("~||~", "\n");
 	};
 
-	eventSource.onerror = (error) => {
+	eventSource.onerror = async (error) => {
 		console.error("EventSource error:", error);
 		eventSource.close();
+		await $fetch("/api/libMaint/buildStores");
 	};
 
-	eventSource.onclose = () => {
+	eventSource.onclose = async () => {
 		console.log("EventSource closed");
 		streamedText.value += "Stream ended!!!!!!!!!!!!!\n";
+
+		await $fetch("/api/libMaint/buildStores");
+
 	};
 });
 

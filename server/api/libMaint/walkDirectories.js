@@ -39,35 +39,42 @@ export default defineEventHandler(async (event) => {
 					const isRegFile =
 						(file.stats.mode & fs.constants.S_IFMT) === fs.constants.S_IFREG;
 					if (!isRegFile) {
-						console.log("Skipping non-regular file:", file.path);
+						// console.log("Skipping non-regular file:", file.path);
 						continue; // skip non-regular files
 					}
 
 					await eventStream.push(
 						"=================================================================",
 					);
-					await eventStream.push(file);
+					
 					// console.log(
 					// 	"=================================================================",
 					// );
-					// console.log(file);
+					  // console.log(file.path);
 
 					await eventStream.push(`${file.path.replaceAll("\n", "~||~")}`);
 					await processFile(file, eventStream);
 				}
 			})
+			.on("error", (err) => {
+				eventStream.close();
+			})
 			.on("end", async () => {
 				await eventStream.push(
 					`Processed ${oneDir} ; ${fileCntr} files; ${unknownCntr} unknowns; ${newFileCntr} new files`,
 				);
-				//await eventStream.push("Stream ended");
-				// Dont close the stream because there are more directories to do.
-				//eventStream.close();
+				
+				// Dont close the stream because there are more directories to do.				
 				console.log(
 					`Processed ${oneDir} ; ${fileCntr} files; ${unknownCntr} unknowns; ${newFileCntr} new files`,
 				);
+
+					eventStream.close();
+
 			});
 	}
+
+
 	console.log("Done processing all directories");
 
 	return eventStream.send();
@@ -240,7 +247,7 @@ async function processFile(oneFile, eventStream) {
 		}
 	} else {
 		console.log("No match found");
-		await eventStream.push("No match found");
+		await eventStream.push("No corps name found in the file name; adding to unknowns");
 		unknownCntr++;
 		const insertUnknown = db.prepare(
 			"INSERT INTO unknowns (path, filename, dateAdded) VALUES (?, ?, ?)",

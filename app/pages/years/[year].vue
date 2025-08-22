@@ -6,6 +6,12 @@ import { FilterMatchMode } from "@primevue/core/api";
 import { useCorpsStore } from "@/stores/corps.js";
 import { useCrumbStore } from "@/stores/breadcrumb.js";
 import { storeToRefs } from "pinia";
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+
+const smallViewport = breakpoints.smaller('lg')
+
 
 const route = useRoute();
 const router = useRouter();
@@ -98,11 +104,11 @@ const filterOptions = ref([
   { value: "International" },
 ]);
 
-const viewport = useViewport();
+// const viewport = useViewport();
 
-watch(viewport.breakpoint, (newBreakpoint, oldBreakpoint) => {
-  console.log("Breakpoint updated:", oldBreakpoint, "->", newBreakpoint);
-});
+// watch(viewport.breakpoint, (newBreakpoint, oldBreakpoint) => {
+//   console.log("Breakpoint updated:", oldBreakpoint, "->", newBreakpoint);
+// });
 
 const corpsByPosition = computed(() => {
   /*
@@ -155,7 +161,8 @@ async function selectCorpsMobile(item) {
     <div class="p-6">
       <h2 class="text-xl font-bold mb-2">{{ route.params.year }}</h2>
 
-      <div v-if="viewport.isLessThan('tablet')">
+      <div v-if="smallViewport">
+        <!-- viewport.isLessThan('tablet')"> -->
 
 
         <div>Filter buttons: Juniors / Seniors/etc</div>

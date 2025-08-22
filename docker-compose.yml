@@ -7,17 +7,16 @@ services:
   app:
     build:
       context: .
-      #target: 'dev'
-      target: 'prod'
+      target: 'dev'
+      #target: 'prod'
 
     #image: corps-viewer:latest
     container_name: corps-viewer
     ports:
       - '3001:3000'
-      #- '9229:9229'
+
     volumes:
       - ./data/:/db:rw
-      #- /mnt/e:/media:ro
       - '/mnt/e/:/media:ro'
 
     environment: #internal port
@@ -26,6 +25,8 @@ services:
       - SQLITE3_DATABASE=/db/dci-2.db
       - DATA_PATH=/db
       - MEDIA_PATH=/media
+
+      #- DEBUG="music-metadata:*"
       #- PATH_REWRITE_FROM='Drum'
       #- PATH_REWRITE_TO=/media
     labels:

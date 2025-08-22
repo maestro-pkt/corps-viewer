@@ -5,6 +5,12 @@ const streamedText = ref("");
 const lineArray = [];
 let eventSource = null;
 
+const numNew = ref(0);
+const numExisting = ref(0);
+const numExistingUnknowns = ref(0);
+const numNewUnknowns = ref(0);
+const numTotalScanned = ref(0);
+
 onMounted(() => {
 	eventSource = new EventSource("/api/libMaint/walkDirectories");
 
@@ -17,6 +23,8 @@ onMounted(() => {
 			return;
 		}
 		// streamedText.value += `${event.data.length}\n`;
+
+
 
 		lineArray.push(event.data);
 		// streamedText.value += `${event.data}\n`;
@@ -48,12 +56,26 @@ onUnmounted(() => {
 		eventSource.close();
 	}
 });
+
+
+
 </script>
 
 <template>
 	<div>
 
 		<Panel header="Scanning for new files...">
+			<table>
+				<tbody>
+					<tr>
+						<td># New {{ numNew }}</td>
+						<td># Existing {{ numExisting }}</td>
+						<td># Existing Unknowns {{ numExistingUnknowns }}</td>
+						<td># New Unknowns {{ numNewUnknowns }}</td>
+						<td>Total Scanned {{ numTotalScanned }}</td>
+					</tr>
+				</tbody>
+			</table>
 			<div class="bg-black p-6 rounded-lg shadow-lg max-w-full  ">
 				<pre class="font-mono text-gray-300 text-sm">
     <code>

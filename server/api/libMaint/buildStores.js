@@ -22,6 +22,10 @@ files.duration,
 files.resolution,
 files.filetype,
 files.fileinfo,
+files.videoCodec,
+files.audioCodec,
+files.audioChannels,
+files.audioSamples,
 scores.year,
 scores.division,
 scores.name,
@@ -31,7 +35,7 @@ scores.rep,
 scores.title as showtitle
 
 from files inner join scores on files.corpsId = scores.corpsId and files.year = scores.year`
-    
+
     //"select * from files inner join scores on files.corpsId = scores.corpsId and files.year = scores.year",
   );
   // Execute the prepared statement and log the result set.
@@ -43,8 +47,8 @@ export default defineEventHandler(() => {
 
   const corpsList = [];
 
-	const byCorps = {};
-	/*
+  const byCorps = {};
+  /*
 corpsId => {
   corpsname
   history
@@ -118,6 +122,10 @@ year => {
       year: oneVideo.year,
       fileinfo: oneVideo.fileinfo,
       filetype: oneVideo.filetype,
+      videoCodec: oneVideo.videoCodec,
+      audioCodec: oneVideo.audioCodec,
+      audioChannels: oneVideo.audioChannels,
+      audioSamples: oneVideo.audioSamples,
       duration: oneVideo.duration,
       resolution: oneVideo.resolution,
       title: oneVideo.filetitle,
@@ -147,6 +155,10 @@ year => {
     byYears[oneVideo.year][oneVideo.corpsId].shows.push({
       fileinfo: oneVideo.fileinfo,
       filetype: oneVideo.filetype,
+      videoCodec: oneVideo.videoCodec,
+      audioCodec: oneVideo.audioCodec,
+      audioChannels: oneVideo.audioChannels,
+      audioSamples: oneVideo.audioSamples,
       duration: oneVideo.duration,
       resolution: oneVideo.resolution,
       title: oneVideo.filetitle,

@@ -52,6 +52,9 @@ const rep = ref("");
 const vidType = ref();
 const corpsId = ref();
 const year = ref();
+const filePath = ref("");
+const fileTitle = ref("");
+const fileDuration = ref(0);
 
 
 const videoOptions = {
@@ -79,6 +82,9 @@ onMounted(async () => {
   console.log("vid details", vidDetails);
   corpsId.value = vidDetails.corpsId;
   year.value = vidDetails.year;
+  filePath.value = vidDetails.path;
+  fileTitle.value = vidDetails.title;
+  fileDuration.value = vidDetails.duration;
 
 
   if (vidDetails.path.endsWith("mkv")) {
@@ -190,6 +196,8 @@ function skip30() {
                 <OhVueIcon name="md-forward30" />
               </Button>
             </div>
+            <div>Path: {{ filePath }}</div>
+            <div>Title: {{ fileTitle }} ({{ fileDuration }})</div>
           </div>
         </template>
 
@@ -202,7 +210,6 @@ function skip30() {
 
       <ScoreRep :position="position" :score="score" :title="title" :rep="rep" />
       <VideoAttributes :vidId="$route.params.vidId" />
-
 
     </div>
   </div>

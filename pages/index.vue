@@ -1,4 +1,0 @@
-<template>
-  aaa
-  
-</template>
